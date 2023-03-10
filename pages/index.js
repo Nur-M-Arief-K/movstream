@@ -11,10 +11,18 @@ import SectionCards from "@/components/card/section-cards/section-cards";
 /* import styles */
 import styles from "../styles/Home.module.css";
 
-export default function Home() {
-  // sample videos data
+/* SSR */
+export async function getServerSideProps(context) {
   const disneyVideos = getVideos();
 
+  return {
+    props: { disneyVideos }, // will be passed to the page component as props
+  };
+}
+
+export default function Home(props) {
+  const { disneyVideos } = props;
+  
   return (
     <>
       <Head>
