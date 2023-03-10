@@ -1,5 +1,5 @@
 /* import functions */
-import { getVideos } from "@/lib/videos";
+import { getVideos, getPopularVideos } from "@/lib/videos";
 
 /* import components */
 import Head from "next/head";
@@ -13,31 +13,42 @@ import styles from "../styles/Home.module.css";
 
 /* SSR */
 export async function getServerSideProps(context) {
-  const disneyVideos = getVideos();
+  const disneyVideos = await getVideos("disney trailer");
+  const productivityVideos = await getVideos("Productivity");
+  const travelVideos = await getVideos("travel");
+  const popularVideos = await getPopularVideos();
 
   return {
-    props: { disneyVideos }, // will be passed to the page component as props
+    props: { disneyVideos, productivityVideos, travelVideos, popularVideos }, // will be passed to the page component as props
   };
 }
 
 export default function Home(props) {
-  const { disneyVideos } = props;
-  
+  const { disneyVideos, productivityVideos, travelVideos, popularVideos } =
+    props;
+
   return (
     <>
       <Head>
         <title>Movstream</title>
       </Head>
-      <Navbar username="ariefnur141@gmail.com" />
-      <Banner
-        title="Spiderman far from home"
-        subTitle="The ultimate adventure of spider-verse"
-        imgUrl="/static/spiderman-far-from-home-poster-landscape.webp"
-      />
-
-      <div className={styles.sectionWrapper}>
-        <SectionCards title="Disney" videos={disneyVideos} size="large" />
-        <SectionCards title="Disney" videos={disneyVideos} size="medium" />
+      <div className={styles.main}>
+        <Navbar username="ariefnur141@gmail.com" />
+        <Banner
+          title="Spiderman far from home"
+          subTitle="The ultimate adventure of spider-verse"
+          imgUrl="/static/spiderman-far-from-home-poster-landscape.webp"
+        />
+        <div className={styles.sectionWrapper}>
+          <SectionCards title="Disney" videos={disneyVideos} size="large" />
+          <SectionCards title="Travel" videos={travelVideos} size="small" />
+          <SectionCards
+            title="Productivity"
+            videos={productivityVideos}
+            size="medium"
+          />
+          <SectionCards title="Popular" videos={popularVideos} size="small" />
+        </div>
       </div>
     </>
   );
