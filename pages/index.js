@@ -2,6 +2,7 @@
 import Head from "next/head";
 
 import Banner from "@/components/banner/banner";
+import Navbar from "@/components/navbar/navbar";
 
 /* import styles */
 import styles from "../styles/Home.module.css";
@@ -12,7 +13,7 @@ export default function Home() {
       <Head>
         <title>Movstream</title>
       </Head>
-      <h1>HI IM HOME PAGE</h1>
+      <Navbar username="ariefnur141@gmail.com" />
       <Banner
         title="Spiderman far from home"
         subTitle="The ultimate adventure of spider-verse"
