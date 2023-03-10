@@ -1,27 +1,19 @@
+/* import functions */
+import { getVideos } from "@/lib/videos";
+
 /* import components */
 import Head from "next/head";
 
 import Banner from "@/components/banner/banner";
 import Navbar from "@/components/navbar/navbar";
 import SectionCards from "@/components/card/section-cards/section-cards";
-import Card from "@/components/card/card";
 
 /* import styles */
 import styles from "../styles/Home.module.css";
 
 export default function Home() {
   // sample videos data
-  const disneyVideos = [
-    {
-      imgUrl: "/static/spiderman-far-from-home-poster-landscape.webp",
-    },
-    {
-      imgUrl: "/static/spiderman-far-from-home-poster-landscape.webp",
-    },
-    {
-      imgUrl: "/static/spiderman-far-from-home-poster-landscape.webp",
-    },
-  ];
+  const disneyVideos = getVideos();
 
   return (
     <>
