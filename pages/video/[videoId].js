@@ -10,9 +10,8 @@ import styles from "../../styles/Video.module.css";
 
 Modal.setAppElement("#__next");
 
-const Video = () => {
-  const router = useRouter();
-
+/* ISR */
+export async function getStaticProps() {
   const video = {
     title: "Hi cute dog",
     publishTime: "1990-01-01",
@@ -21,6 +20,24 @@ const Video = () => {
     channelTitle: "Paramount Pictures",
     viewCount: 10000,
   };
+
+  return { props: { video }, revalidate: 10 };
+}
+
+/* store known static paths */
+export async function getStaticPaths() {
+  const listOfVideos = ["mYfJxlgR2jw", "4zH5iYM4wJo", "KCPEHsAViiQ"];
+  const paths = listOfVideos.map((videoId) => ({
+    params: { videoId },
+  }));
+
+  return { paths, fallback: "blocking" };
+}
+
+const Video = (props) => {
+  const router = useRouter();
+
+  const { video } = props;
 
   const { title, publishTime, description, channelTitle, viewCount } = video;
 
