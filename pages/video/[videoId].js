@@ -1,9 +1,11 @@
 /* import functions */
 import { useRouter } from "next/router";
 import clsx from "classnames";
+import { getYoutubeVideoById } from "@/lib/videos";
 
 /* import components */
 import Modal from "react-modal";
+import Navbar from "@/components/navbar/navbar";
 
 /* import styles */
 import styles from "../../styles/Video.module.css";
@@ -11,17 +13,16 @@ import styles from "../../styles/Video.module.css";
 Modal.setAppElement("#__next");
 
 /* ISR */
-export async function getStaticProps() {
-  const video = {
-    title: "Hi cute dog",
-    publishTime: "1990-01-01",
-    description:
-      "A big red dog that is super cute, can he get any bigger? A big red dog that is super cute, can he get any bigger? A big red dog that is super cute, can he get any bigger? A big red dog that is super cute, can he get any bigger? A big red dog that is super cute, can he get any bigger? A big red dog that is super cute, can he get any bigger? A big red dog that is super cute, can he get any bigger? A big red dog that is super cute, can he get any bigger? A big red dog that is super cute, can he get any bigger? A big red dog that is super cute, can he get any bigger? A big red dog that is super cute, can he get any bigger? A big red dog that is super cute, can he get any bigger? A big red dog that is super cute, can he get any bigger? A big red dog that is super cute, can he get any bigger? A big red dog that is super cute, can he get any bigger?",
-    channelTitle: "Paramount Pictures",
-    viewCount: 10000,
-  };
+export async function getStaticProps(context) {
+  /* check route params */
+  const videoId = context.params.videoId;
 
-  return { props: { video }, revalidate: 10 };
+  const videoArray = await getYoutubeVideoById(videoId);
+
+  return {
+    props: { video: videoArray.length > 0 ? videoArray[0] : {} },
+    revalidate: 10,
+  };
 }
 
 /* store known static paths */
@@ -39,10 +40,19 @@ const Video = (props) => {
 
   const { video } = props;
 
-  const { title, publishTime, description, channelTitle, viewCount } = video;
+  console.log( { video } );
+
+  const {
+    title,
+    publishTime,
+    description,
+    channelTitle,
+    statistics: { viewCount } = { viewCount: 0 },
+  } = video;
 
   return (
-    <div>
+    <div className={styles.container}>
+      <Navbar />
       <Modal
         className={styles.modal}
         isOpen={true}
