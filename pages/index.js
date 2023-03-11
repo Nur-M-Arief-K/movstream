@@ -33,8 +33,9 @@ export default function Home(props) {
         <title>Movstream</title>
       </Head>
       <div className={styles.main}>
-        <Navbar/>
+        <Navbar />
         <Banner
+          videoId="4zH5iYM4wJo"
           title="Spiderman far from home"
           subTitle="The ultimate adventure of spider-verse"
           imgUrl="/static/spiderman-far-from-home-poster-landscape.webp"
