@@ -1,6 +1,7 @@
 /* import functions */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import { magic } from "@/lib/magic-client";
 
 /* import component */
 import Head from "next/head";
@@ -10,9 +11,24 @@ import Link from "next/link";
 import styles from "../styles/Login.module.css";
 
 const Login = () => {
+  const router = useRouter();
+  
   const [email, setEmail] = useState("");
   const [userMsg, setUserMsg] = useState("");
-  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const handleComplete = () => {
+      setIsLoading(false);
+    };
+    router.events.on("routeChangeComplete", handleComplete);
+    router.events.on("routeChangeError", handleComplete);
+
+    return () => {
+      router.events.off("routeChangeComplete", handleComplete);
+      router.events.off("routeChangeError", handleComplete);
+    };
+  }, [router]);
 
   const handleOnChangeEmail = (e) => {
     setUserMsg("");
@@ -22,14 +38,43 @@ const Login = () => {
 
   const handleLoginWithEmail = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     if (email) {
       if (email === "ariefnur141@gmail.com") {
-        router.push("/");
+        try {
+          const didToken = await magic.auth.loginWithMagicLink({
+            email,
+          });
+          console.log({ didToken });
+          if (didToken) {
+            router.push("/");
+          }
+        } catch (error) {
+          setIsLoading(false);
+          console.error("Something went wrong logging in", error);
+          if (err instanceof RPCError) {
+            switch (err.code) {
+              case RPCErrorCode.MagicLinkFailedVerification:
+                alert("Magic link verification failed, please login again");
+                break;
+              case RPCErrorCode.MagicLinkExpired:
+                alert("Magic link has been expired, please login again");
+                break;
+              case RPCErrorCode.UserAlreadyLoggedIn:
+                alert("This email has been login");
+                break;
+              default:
+                alert("Something went wrong logging in", error);
+            }
+          }
+        }
       } else {
+        setIsLoading(false);
         console.log("Something went wrong logging in");
       }
     } else {
+      setIsLoading(false);
       setUserMsg("Enter a valid email address");
     }
   };
@@ -60,7 +105,7 @@ const Login = () => {
 
           <p className={styles.userMsg}>{userMsg}</p>
           <button onClick={handleLoginWithEmail} className={styles.loginBtn}>
-            Login
+            {isLoading ? "Loading..." : "Sign In"}
           </button>
         </div>
       </main>
