@@ -48,7 +48,21 @@ const Login = () => {
           });
           console.log({ didToken });
           if (didToken) {
-            router.push("/");
+            const response = await fetch("/api/login", {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${didToken}`,
+                "Content-Type": "application/json",
+              },
+            });
+
+            const loggedInResponse = await response.json();
+            if (loggedInResponse.done) {
+              router.push("/");
+            } else {
+              setIsLoading(false);
+              setUserMsg("Something went wrong logging in");
+            }
           }
         } catch (error) {
           setIsLoading(false);
