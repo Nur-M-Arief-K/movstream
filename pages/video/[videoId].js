@@ -1,4 +1,5 @@
 /* import functions */
+import { useState } from "react";
 import { useRouter } from "next/router";
 import clsx from "classnames";
 import { getYoutubeVideoById } from "@/lib/videos";
@@ -6,6 +7,8 @@ import { getYoutubeVideoById } from "@/lib/videos";
 /* import components */
 import Modal from "react-modal";
 import Navbar from "@/components/navbar/navbar";
+import Like from "@/components/icons/like-icon";
+import DisLike from "@/components/icons/dislike-icon";
 
 /* import styles */
 import styles from "../../styles/Video.module.css";
@@ -40,8 +43,9 @@ const Video = (props) => {
 
   const { video } = props;
 
-  console.log( { video } );
-
+  const [toggleLike, setToggleLike] = useState(false);
+  const [toggleDisLike, setToggleDisLike] = useState(false);
+  
   const {
     title,
     publishTime,
@@ -49,6 +53,18 @@ const Video = (props) => {
     channelTitle,
     statistics: { viewCount } = { viewCount: 0 },
   } = video;
+
+  const handleToggleDislike = async () => {
+    console.log("handleToggleDislike");
+    setToggleDisLike(!toggleDisLike);
+    setToggleLike(toggleDisLike);
+  };
+
+  const handleToggleLike = async () => {
+    console.log("handleToggleLike");
+    setToggleLike(!toggleLike);
+    setToggleDisLike(toggleLike);
+  };
 
   return (
     <div className={styles.container}>
@@ -72,6 +88,22 @@ const Video = (props) => {
             frameBorder="0"
           ></iframe>
         }
+
+        <div className={styles.likeDislikeBtnWrapper}>
+          <div className={styles.likeBtnWrapper}>
+            <button onClick={handleToggleLike}>
+              <div className={styles.btnWrapper}>
+                <Like selected={toggleLike} />
+              </div>
+            </button>
+          </div>
+          <button onClick={handleToggleDislike}>
+            <div className={styles.btnWrapper}>
+              <DisLike selected={toggleDisLike} />
+            </div>
+          </button>
+        </div>
+
         <div className={styles.modalBody}>
           <div className={styles.modalBodyContent}>
             <div className={styles.col1}>
