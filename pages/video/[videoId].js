@@ -1,5 +1,5 @@
 /* import functions */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import clsx from "classnames";
 import { getYoutubeVideoById } from "@/lib/videos";
@@ -41,11 +41,13 @@ export async function getStaticPaths() {
 const Video = (props) => {
   const router = useRouter();
 
+  const videoId = router.query.videoId;
+
   const { video } = props;
 
   const [toggleLike, setToggleLike] = useState(false);
   const [toggleDisLike, setToggleDisLike] = useState(false);
-  
+
   const {
     title,
     publishTime,
@@ -54,16 +56,57 @@ const Video = (props) => {
     statistics: { viewCount } = { viewCount: 0 },
   } = video;
 
+  useEffect(() => {
+    const handleLikeDislikeService = async () => {
+      const response = await fetch(`/api/stats?videoId=${videoId}`, {
+        method: "GET",
+      });
+      const data = await response.json();
+
+      if (data.length > 0) {
+        const favorited = data[0].favorited;
+        if (favorited === 1) {
+          setToggleLike(true);
+        } else if (favorited === 0) {
+          setToggleDisLike(true);
+        }
+      }
+    };
+    handleLikeDislikeService();
+  }, [videoId]);
+
+  const runRatingService = async (favorited) => {
+    return await fetch("/api/stats", {
+      method: "POST",
+      body: JSON.stringify({
+        videoId,
+        favorited,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  };
+
   const handleToggleDislike = async () => {
-    console.log("handleToggleDislike");
     setToggleDisLike(!toggleDisLike);
     setToggleLike(toggleDisLike);
+
+    const val = !toggleDisLike;
+
+    const favorited = val ? 0 : 1;
+    const response = await runRatingService(favorited);
+    console.log("data", await response.json());
   };
 
   const handleToggleLike = async () => {
-    console.log("handleToggleLike");
-    setToggleLike(!toggleLike);
+    const val = !toggleLike;
+    setToggleLike(val);
     setToggleDisLike(toggleLike);
+
+    const favorited = val ? 1 : 0;
+    const response = await runRatingService(favorited);
+    console.log("data", await response.json());
   };
 
   return (
@@ -84,7 +127,7 @@ const Video = (props) => {
             type="text/html"
             width="100%"
             height="360"
-            src={`https://www.youtube.com/embed/${router.query.videoId}?autoplay=0&origin=http://example.com&controls=0&rel=1`}
+            src={`https://www.youtube.com/embed/${videoId}?autoplay=0&origin=http://example.com&controls=0&rel=1`}
             frameBorder="0"
           ></iframe>
         }

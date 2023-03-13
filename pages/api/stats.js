@@ -1,49 +1,59 @@
 /* import functions */
 import jwt from "jsonwebtoken";
-import { findVideoIdByUser, updateStats, insertStats } from "@/lib/db/hasura";
+import {
+  findVideoIdByUser,
+  updateStats,
+  insertStats,
+} from "../../lib/db/hasura";
 
 export default async function stats(req, resp) {
-  if (req.method === "POST") {
-    try {
-      /* cookies are sent by default with every http request */
-      const token = req.cookies.token;
-      if (!token) {
-        resp.status(403).send({});
-      } else {
-        const { videoId, favorited, watched = true } = req.body;
-        if (videoId) {
-          const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      resp.status(403).send({});
+    } else {
+      const { videoId } = req.method === "POST" ? req.body : req.query;
+      if (videoId) {
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
-          const userId = decodedToken.issuer;
-          const doesStatsExist = await findVideoIdByUser(
-            token,
-            userId,
-            videoId
-          );
+        const userId = decodedToken.issuer;
+        const findVideo = await findVideoIdByUser(token, userId, videoId);
+        const doesStatsExist = findVideo?.length > 0;
+
+        if (req.method === "POST") {
+          const { favoritedted, watched = true } = req.body;
           if (doesStatsExist) {
             // update it
             const response = await updateStats(token, {
               watched,
               userId,
               videoId,
-              favorited,
+              favoritedted,
             });
-            resp.send({ response });
+            resp.send({ data: response });
           } else {
             // add it
+            console.log({ watched, userId, videoId, favoritedted });
             const response = await insertStats(token, {
               watched,
               userId,
               videoId,
-              favorited,
+              favoritedted,
             });
-            resp.send({ response });
+            resp.send({ data: response });
+          }
+        } else {
+          if (doesStatsExist) {
+            resp.send(findVideo);
+          } else {
+            resp.status(404);
+            resp.send({ user: null, msg: "Video not found" });
           }
         }
       }
-    } catch (error) {
-      console.error("Error occurred /stats", error);
-      resp.status(500).send({ done: false, error: error?.message });
     }
+  } catch (error) {
+    console.error("Error occurred /stats", error);
+    resp.status(500).send({ done: false, error: error?.message });
   }
 }
