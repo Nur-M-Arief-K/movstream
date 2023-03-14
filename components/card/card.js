@@ -10,7 +10,12 @@ import Image from "next/image";
 import styles from "./card.module.css";
 
 const Card = (props) => {
-  const { imgUrl = "/static/default-thumbnail.webp", size = "medium", id } = props;
+  const {
+    imgUrl = "/static/default-thumbnail.webp",
+    size = "medium",
+    id,
+    shouldScale = true,
+  } = props;
 
   const [imgSrc, setImgSrc] = useState(imgUrl);
 
@@ -22,6 +27,10 @@ const Card = (props) => {
 
   const scale = id === 0 ? { scaleY: 1.1 } : { scale: 1.1 };
 
+  const shouldHover = shouldScale && {
+    whileHover: { ...scale },
+  };
+
   const handleOnError = () => {
     setImgSrc("/static/default-thumbnail.webp");
   };
@@ -30,7 +39,7 @@ const Card = (props) => {
     <div className={styles.container}>
       <motion.div
         className={cls(styles.imgMotionWrapper, classMap[size])}
-        whileHover={{ ...scale }}
+        {...shouldHover}
       >
         <Image
           priority
