@@ -19,20 +19,8 @@ import styles from "../styles/Home.module.css";
 /* SSR */
 export async function getServerSideProps(context) {
   const { userId, token } = await redirectUser(context);
-
-  if (!userId) {
-    return {
-      props: {},
-      redirect: {
-        destination: "/login",
-        permanent: false,
-      },
-    };
-  }
-
+  
   const watchItAgainVideos = await getWatchItAgainVideos(userId, token);
-
-  console.log({ watchItAgainVideos });
 
   const disneyVideos = await getVideos("disney trailer");
   const productivityVideos = await getVideos("Productivity");
@@ -58,8 +46,6 @@ export default function Home(props) {
     popularVideos,
     watchItAgainVideos,
   } = props;
-
-  console.log(watchItAgainVideos);
 
   return (
     <>

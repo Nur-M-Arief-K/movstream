@@ -24,7 +24,6 @@ const Navbar = (props) => {
       try {
         const { email, issuer } = await magic.user.getMetadata();
         const didToken = await magic.user.getIdToken(); //token from magic-client instance
-        console.log({ didToken });
         if (email) {
           setUsername(email);
         }
