@@ -12,7 +12,7 @@ import styles from "../styles/Login.module.css";
 
 const Login = () => {
   const router = useRouter();
-  
+
   const [email, setEmail] = useState("");
   const [userMsg, setUserMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -41,52 +41,37 @@ const Login = () => {
     setIsLoading(true);
 
     if (email) {
-      if (email === "ariefnur141@gmail.com") {
-        try {
-          const didToken = await magic.auth.loginWithMagicLink({
-            email,
-          });
-          if (didToken) {
-            const response = await fetch("/api/login", {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${didToken}`,
-                "Content-Type": "application/json",
-              },
-            });
+      // log in a user by their email
+      try {
+        setIsLoading(true);
 
-            const loggedInResponse = await response.json();
-            if (loggedInResponse.done) {
-              router.push("/");
-            } else {
-              setIsLoading(false);
-              setUserMsg("Something went wrong logging in");
-            }
-          }
-        } catch (error) {
-          setIsLoading(false);
-          console.error("Something went wrong logging in", error);
-          if (err instanceof RPCError) {
-            switch (err.code) {
-              case RPCErrorCode.MagicLinkFailedVerification:
-                alert("Magic link verification failed, please login again");
-                break;
-              case RPCErrorCode.MagicLinkExpired:
-                alert("Magic link has been expired, please login again");
-                break;
-              case RPCErrorCode.UserAlreadyLoggedIn:
-                alert("This email has been login");
-                break;
-              default:
-                alert("Something went wrong logging in", error);
-            }
+        const didToken = await magic.auth.loginWithMagicLink({
+          email,
+        });
+        if (didToken) {
+          const response = await fetch("/api/login", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${didToken}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          const loggedInResponse = await response.json();
+          if (loggedInResponse.done) {
+            router.push("/");
+          } else {
+            setIsLoading(false);
+            setUserMsg("Something went wrong logging in");
           }
         }
-      } else {
+      } catch (error) {
+        // Handle errors if required!
+        console.error("Something went wrong logging in", error);
         setIsLoading(false);
-        console.log("Something went wrong logging in");
       }
     } else {
+      // show user message
       setIsLoading(false);
       setUserMsg("Enter a valid email address");
     }
