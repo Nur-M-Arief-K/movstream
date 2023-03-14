@@ -69,7 +69,7 @@ export default function Home(props) {
       <div className={styles.main}>
         <Navbar />
         <Banner
-          videoId="4zH5iYM4wJo"
+          videoId="Nt9L1jCKGnE"
           title="Spiderman far from home"
           subTitle="The ultimate adventure of spider-verse"
           imgUrl="/static/spiderman-far-from-home-poster-landscape.webp"
