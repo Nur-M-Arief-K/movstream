@@ -1,5 +1,9 @@
 /* import functions */
-import { getVideos, getPopularVideos } from "@/lib/videos";
+import {
+  getVideos,
+  getPopularVideos,
+  getWatchItAgainVideos,
+} from "@/lib/videos";
 
 /* import components */
 import Head from "next/head";
@@ -13,19 +17,40 @@ import styles from "../styles/Home.module.css";
 
 /* SSR */
 export async function getServerSideProps(context) {
+  const token = context.req ? context.req?.cookies.token : null;
+  console.log({ token });
+  const userId = "did:ethr:0x20B59705F027d977835dB952043eb4457f940E04";
+
+  const watchItAgainVideos = await getWatchItAgainVideos(userId, token);
+
+  console.log({ watchItAgainVideos });
+
   const disneyVideos = await getVideos("disney trailer");
   const productivityVideos = await getVideos("Productivity");
   const travelVideos = await getVideos("travel");
   const popularVideos = await getPopularVideos();
 
   return {
-    props: { disneyVideos, productivityVideos, travelVideos, popularVideos }, // will be passed to the page component as props
+    props: {
+      disneyVideos,
+      productivityVideos,
+      travelVideos,
+      popularVideos,
+      watchItAgainVideos,
+    }, // will be passed to the page component as props
   };
 }
 
 export default function Home(props) {
-  const { disneyVideos, productivityVideos, travelVideos, popularVideos } =
-    props;
+  const {
+    disneyVideos,
+    productivityVideos,
+    travelVideos,
+    popularVideos,
+    watchItAgainVideos,
+  } = props;
+
+  console.log(watchItAgainVideos);
 
   return (
     <>
@@ -42,6 +67,11 @@ export default function Home(props) {
         />
         <div className={styles.sectionWrapper}>
           <SectionCards title="Disney" videos={disneyVideos} size="large" />
+          <SectionCards
+            title="Watch it again"
+            videos={watchItAgainVideos}
+            size="small"
+          />
           <SectionCards title="Travel" videos={travelVideos} size="small" />
           <SectionCards
             title="Productivity"
