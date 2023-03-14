@@ -12,10 +12,12 @@ import styles from "./navbar.module.css";
 
 const Navbar = (props) => {
   const router = useRouter();
-  
+
   const [username, setUsername] = useState("guest");
-  
+
   const [showDropdown, setShowDropdown] = useState(false);
+
+  const [didToken, setDidToken] = useState("");
 
   useEffect(() => {
     async function getUsername() {
@@ -52,9 +54,15 @@ const Navbar = (props) => {
     e.preventDefault();
 
     try {
-      await magic.user.logout();
-      console.log(await magic.user.isLoggedIn());
-      router.push("/login");
+      const response = await fetch("/api/logout", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${didToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const res = await response.json();
     } catch (error) {
       console.error("Error logging out", error);
       router.push("/login");
@@ -64,9 +72,9 @@ const Navbar = (props) => {
   return (
     <div className={styles.container}>
       <div className={styles.wrapper}>
-        <a className={styles.logoLink}>
+        <Link className={styles.logoLink} href="/">
           <div className={styles.logoWrapper}>MOVSTREAM</div>
-        </a>
+        </Link>
         <ul className={styles.navItems}>
           <li className={styles.navItem} onClick={handleOnClickHome}>
             Home
@@ -90,7 +98,11 @@ const Navbar = (props) => {
             {showDropdown && (
               <div className={styles.navDropdown}>
                 <div>
-                  <Link href="/login" className={styles.linkName} onClick={handleSignout}>
+                  <Link
+                    href="/login"
+                    className={styles.linkName}
+                    onClick={handleSignout}
+                  >
                     Logout
                   </Link>
                   <div className={styles.lineWrapper}></div>
