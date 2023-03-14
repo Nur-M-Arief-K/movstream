@@ -4,6 +4,7 @@ import {
   getPopularVideos,
   getWatchItAgainVideos,
 } from "@/lib/videos";
+import { redirectUser } from "@/utils/redirectUser";
 
 /* import components */
 import Head from "next/head";
@@ -17,9 +18,17 @@ import styles from "../styles/Home.module.css";
 
 /* SSR */
 export async function getServerSideProps(context) {
-  const token = context.req ? context.req?.cookies.token : null;
-  console.log({ token });
-  const userId = "did:ethr:0x20B59705F027d977835dB952043eb4457f940E04";
+  const { userId, token } = await redirectUser(context);
+
+  if (!userId) {
+    return {
+      props: {},
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
 
   const watchItAgainVideos = await getWatchItAgainVideos(userId, token);
 
